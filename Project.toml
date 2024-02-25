@@ -1,0 +1,4 @@
+name = "Ngspice"
+uuid = "ee258d78-162e-469f-83b2-4870d1c6fb7f"
+authors = ["Jón Schlipf <jschlipf@gmx.com>"]
+version = "0.1.0"
