@@ -37,15 +37,13 @@ function init()
                                 C_NULL::Ptr{Nothing},
                                 C_NULL::Ptr{Nothing})::Cint
 end
-function run_sim(lines,resultnames,print_all=true)
+function run_sim(lines,resultnames)
     init()
     for element in lines
         @ccall libngspice.ngSpice_Command(string("circbyline ",element)::Cstring)::Cint
     end
     @ccall libngspice.ngSpice_Command("run"::Cstring)::Cint
-    if print_all
-        @ccall libngspice.ngSpice_Command("print all"::Cstring)::Cint
-    end
+    @ccall libngspice.ngSpice_Command("print all"::Cstring)::Cint
     results=Dict()
     for resultname in resultnames
         vector_info_pointer=@ccall libngspice.ngGet_Vec_Info(resultname::Cstring)::Ptr{vector_info}
