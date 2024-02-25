@@ -28,7 +28,7 @@ function contexit(i1,b1,b2,i2,voidpoint)
 end
 contexit_c=Base.@cfunction(contexit,Cint,(Cint,Cchar,Cchar,Cint,Ptr{Cvoid}))
 
-function init()
+function ngSpice_Init()
     @ccall libngspice.ngSpice_Init(printstr_c::Ptr{Cvoid},
                                 C_NULL::Ptr{Nothing},
                                 contexit_c::Ptr{Cvoid},
@@ -37,13 +37,16 @@ function init()
                                 C_NULL::Ptr{Nothing},
                                 C_NULL::Ptr{Nothing})::Cint
 end
+function ngSpice_Command(command::String)
+    return @ccall libngspice.ngSpice_Command(string(command)::Cstring)::Cint
+end
 function run_sim(lines,resultnames)
-    init()
+    ngSpice_Init()
     for element in lines
-        @ccall libngspice.ngSpice_Command(string("circbyline ",element)::Cstring)::Cint
+        ngSpice_Command(string("circbyline ",element))
     end
-    @ccall libngspice.ngSpice_Command("run"::Cstring)::Cint
-    @ccall libngspice.ngSpice_Command("print all"::Cstring)::Cint
+    ngSpice_Command("run")
+    ngSpice_Command("print all")
     results=Dict()
     for resultname in resultnames
         vector_info_pointer=@ccall libngspice.ngGet_Vec_Info(resultname::Cstring)::Ptr{vector_info}
