@@ -54,7 +54,7 @@ function run_sim(lines,resultnames)
         data=zeros(unsafe_load(vector_info_pointer).v_length)*1im
         for j=1:length(data)
             #data[j]=unsafe_load(unsafe_load(vector_info_pointer).v_realdata,j)
-            data[j]=unsafe_load(unsafe_load(vector_info_pointer).v_compdata,j)
+            data[j] = unsafe_load(unsafe_load(vector_info_pointer).v_compdata,j).cx_real + 1im*unsafe_load(unsafe_load(vector_info_pointer).v_compdata,j).cx_imag
         end
         results[resultname]=data
     end
