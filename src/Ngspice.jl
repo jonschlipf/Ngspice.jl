@@ -40,7 +40,7 @@ end
 function ngSpice_Command(command::String)
     return @ccall libngspice.ngSpice_Command(string(command)::Cstring)::Cint
 end
-function run_sim(lines,resultnames)
+function run_sim(lines,resultnames,complex_data=false)
     println("Ngspice.jl: running ngspice")
     ngSpice_Init()
     for element in lines
@@ -51,10 +51,13 @@ function run_sim(lines,resultnames)
     results=Dict()
     for resultname in resultnames
         vector_info_pointer=@ccall libngspice.ngGet_Vec_Info(resultname::Cstring)::Ptr{vector_info}
-        data=zeros(unsafe_load(vector_info_pointer).v_length)*1im
+        data = zeros(unsafe_load(vector_info_pointer).v_length)*1im
         for j=1:length(data)
-            #data[j]=unsafe_load(unsafe_load(vector_info_pointer).v_realdata,j)
-            data[j] = unsafe_load(unsafe_load(vector_info_pointer).v_compdata,j).cx_real + 1im*unsafe_load(unsafe_load(vector_info_pointer).v_compdata,j).cx_imag
+            if(complex_data)
+                data[j] = unsafe_load(unsafe_load(vector_info_pointer).v_compdata,j).cx_real + 1im*unsafe_load(unsafe_load(vector_info_pointer).v_compdata,j).cx_imag
+            else
+                data[j] = unsafe_load(unsafe_load(vector_info_pointer).v_realdata,j)
+            end
         end
         results[resultname]=data
     end
