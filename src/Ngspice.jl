@@ -41,6 +41,7 @@ function ngSpice_Command(command::String)
     return @ccall libngspice.ngSpice_Command(string(command)::Cstring)::Cint
 end
 function run_sim(lines,resultnames)
+    println("Ngspice.jl: running ngspice")
     ngSpice_Init()
     for element in lines
         ngSpice_Command(string("circbyline ",element))
@@ -50,9 +51,10 @@ function run_sim(lines,resultnames)
     results=Dict()
     for resultname in resultnames
         vector_info_pointer=@ccall libngspice.ngGet_Vec_Info(resultname::Cstring)::Ptr{vector_info}
-        data=zeros(unsafe_load(vector_info_pointer).v_length)
+        data=zeros(unsafe_load(vector_info_pointer).v_length)*1im
         for j=1:length(data)
-            data[j]=unsafe_load(unsafe_load(vector_info_pointer).v_realdata,j)
+            #data[j]=unsafe_load(unsafe_load(vector_info_pointer).v_realdata,j)
+            data[j]=unsafe_load(unsafe_load(vector_info_pointer).v_compdata,j)
         end
         results[resultname]=data
     end
